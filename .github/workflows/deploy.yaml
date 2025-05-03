@@ -43,6 +43,11 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
+
+          git checkout main  # ou outra branch principal
+
+          git pull origin main
+
           git add k8s/deployment.yaml
-          git commit -m "Atualiza imagem para ${{ steps.extract_tag.outputs.TAG }}"
-          git push
+          git commit -m "Atualiza imagem para ${{ steps.extract_tag.outputs.TAG }}" || echo "No changes to commit"
+          git push origin main
