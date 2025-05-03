@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: laravel
-          image: tadeubarbosa/argocd-estudos:latest
+          image: tadeubarbosa/argocd-estudos:1.0.2
           ports:
             - containerPort: 9000
           env:
