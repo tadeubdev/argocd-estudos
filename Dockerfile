@@ -1,32 +1,38 @@
 FROM php:8.2-fpm
 
-# Instala dependências do sistema
+# Instala extensões necessárias
 RUN apt-get update && apt-get install -y \
-    git \
+    nginx \
     curl \
+    git \
+    unzip \
+    zip \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
-    zip \
-    unzip \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Instala o Composer
+# Instala Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Define o diretório de trabalho
+# Cria diretório de trabalho
 WORKDIR /var/www
 
-# Copia os arquivos do projeto
+# Copia arquivos do Laravel para dentro do container
 COPY . .
 
 # Instala as dependências do Laravel
 RUN composer install --no-dev --optimize-autoloader
 
-# Define as permissões corretas
+# Copia a config do nginx personalizada
+COPY ./nginx.conf /etc/nginx/sites-available/default
+
+# Corrige permissões
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage
 
-# Expõe a porta 9000 e inicia o PHP-FPM
-EXPOSE 9000
-CMD ["php-fpm"]
+# Expõe a porta do NGINX (não mais a 9000 do PHP-FPM)
+EXPOSE 80
+
+# Inicia os serviços
+CMD service nginx start && php-fpm
